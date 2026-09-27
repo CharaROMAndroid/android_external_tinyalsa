@@ -307,6 +307,11 @@ struct mixer_ctl;
 struct mixer *mixer_open(unsigned int card);
 void mixer_close(struct mixer *mixer);
 
+/* Refresh a mixer after controls have been added or removed dynamically.
+ * Any struct mixer_ctl pointers obtained before this call are invalidated.
+ */
+int mixer_update(struct mixer *mixer);
+
 /* Get info about a mixer */
 const char *mixer_get_name(struct mixer *mixer);
 

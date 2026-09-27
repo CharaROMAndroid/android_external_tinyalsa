@@ -295,6 +295,50 @@ fail:
     return 0;
 }
 
+int mixer_update(struct mixer *mixer)
+{
+    struct mixer_ctl_group *new_hw_grp = NULL;
+    struct mixer_ctl_group *new_virt_grp = NULL;
+    struct mixer_ctl_group *old_hw_grp;
+    struct mixer_ctl_group *old_virt_grp;
+    int hw_ctl_count = 0;
+    int virt_ctl_count = 0;
+    int ret;
+
+    if (!mixer)
+        return -EINVAL;
+
+    old_hw_grp = mixer->hw_grp;
+    old_virt_grp = mixer->virt_grp;
+
+    if (old_hw_grp) {
+        ret = mixer_grp_open(&new_hw_grp, old_hw_grp->ops, old_hw_grp->data,
+                             &hw_ctl_count);
+        if (ret < 0)
+            goto error;
+    }
+
+    if (old_virt_grp) {
+        ret = mixer_grp_open(&new_virt_grp, old_virt_grp->ops,
+                             old_virt_grp->data, &virt_ctl_count);
+        if (ret < 0)
+            goto error;
+    }
+
+    mixer->hw_grp = new_hw_grp;
+    mixer->virt_grp = new_virt_grp;
+    mixer->total_ctl_count = hw_ctl_count + virt_ctl_count;
+
+    mixer_grp_close(old_hw_grp);
+    mixer_grp_close(old_virt_grp);
+    return 0;
+
+error:
+    mixer_grp_close(new_hw_grp);
+    mixer_grp_close(new_virt_grp);
+    return ret;
+}
+
 static bool mixer_ctl_get_elem_info(struct mixer_ctl* ctl)
 {
     struct mixer_ctl_group *grp;
