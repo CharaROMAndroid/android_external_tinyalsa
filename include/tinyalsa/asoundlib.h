@@ -308,7 +308,9 @@ struct mixer *mixer_open(unsigned int card);
 void mixer_close(struct mixer *mixer);
 
 /* Refresh a mixer after controls have been added or removed dynamically.
- * Any struct mixer_ctl pointers obtained before this call are invalidated.
+ * On success, previously obtained control pointers and names are invalidated.
+ * Callers must serialize this call with all mixer/control access, including
+ * event operations and mixer_close; concurrent use is not supported.
  */
 int mixer_update(struct mixer *mixer);
 

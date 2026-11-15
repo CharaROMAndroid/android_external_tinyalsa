@@ -325,6 +325,12 @@ int mixer_update(struct mixer *mixer)
             goto error;
     }
 
+    /* The borrowed backends retain their pending event queues. */
+    if (new_hw_grp)
+        new_hw_grp->event_cnt = old_hw_grp->event_cnt;
+    if (new_virt_grp)
+        new_virt_grp->event_cnt = old_virt_grp->event_cnt;
+
     mixer->hw_grp = new_hw_grp;
     mixer->virt_grp = new_virt_grp;
     mixer->total_ctl_count = hw_ctl_count + virt_ctl_count;
